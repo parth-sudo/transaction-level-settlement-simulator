@@ -16,6 +16,8 @@ public class SettlementResponse {
     private Integer pendingCount;
     private Integer failedCount;
     private String batchId;
+    private String txnId;
+    private String settlementId;
     private List<TransactionDetail> transactions;
     private LocalDateTime timestamp;
 
@@ -42,6 +44,12 @@ public class SettlementResponse {
 
     public String getBatchId() { return batchId; }
     public void setBatchId(String batchId) { this.batchId = batchId; }
+
+    public String getTxnId() { return txnId; }
+    public void setTxnId(String txnId) { this.txnId = txnId; }
+
+    public String getSettlementId() { return settlementId; }
+    public void setSettlementId(String settlementId) { this.settlementId = settlementId; }
 
     public List<TransactionDetail> getTransactions() { return transactions; }
     public void setTransactions(List<TransactionDetail> transactions) { this.transactions = transactions; }

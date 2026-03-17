@@ -6,7 +6,7 @@ spring:
     name: txn-settlement-simulator
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:recon}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:recon}?search_path=${RECON_SCHEMA:recon},${SETTLEMENT_SCHEMA:settlement_20230727},public
     username: ${DB_USER:postgres}
     password: ${DB_PASS:Juspay}
     driver-class-name: org.postgresql.Driver

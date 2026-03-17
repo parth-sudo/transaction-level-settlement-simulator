@@ -49,6 +49,14 @@ public class SettlementController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/process_per_txn")
+    public ResponseEntity<SettlementResponse> processPerTxn(
+            @RequestParam String txn_id) {
+        logger.info("Received single transaction process request for txn_id: {}", txn_id);
+        SettlementResponse response = settlementService.processSingleTransaction(txn_id);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("Settlement Service is running");

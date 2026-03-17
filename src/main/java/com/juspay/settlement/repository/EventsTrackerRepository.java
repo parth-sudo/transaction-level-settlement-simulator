@@ -11,26 +11,26 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EventsTrackerRepository extends JpaRepository<EventsTracker, Long> {
+public interface EventsTrackerRepository extends JpaRepository<EventsTracker, String> {
 
     Optional<EventsTracker> findByEventId(String eventId);
 
-    List<EventsTracker> findByTxnId(String txnId);
+    List<EventsTracker> findByEntityId(String entityId);
 
-    List<EventsTracker> findByReconId(String reconId);
-
-    List<EventsTracker> findByTopicName(String topicName);
+    List<EventsTracker> findByPaymentEntity(String paymentEntity);
 
     List<EventsTracker> findByEventType(String eventType);
+
+    List<EventsTracker> findByEventStatus(String eventStatus);
 
     @Query("SELECT et FROM EventsTracker et WHERE et.createdAt BETWEEN :startTime AND :endTime")
     List<EventsTracker> findByTimeRange(@Param("startTime") LocalDateTime startTime,
                                         @Param("endTime") LocalDateTime endTime);
 
-    @Query("SELECT COUNT(et) FROM EventsTracker et WHERE et.reconId = :reconId")
-    Long countByReconId(@Param("reconId") String reconId);
+    @Query("SELECT COUNT(et) FROM EventsTracker et WHERE et.entityId = :entityId")
+    Long countByEntityId(@Param("entityId") String entityId);
 
-    @Query("SELECT et FROM EventsTracker et WHERE et.reconId = :reconId AND et.eventType = :eventType")
-    List<EventsTracker> findByReconIdAndEventType(@Param("reconId") String reconId,
+    @Query("SELECT et FROM EventsTracker et WHERE et.entityId = :entityId AND et.eventType = :eventType")
+    List<EventsTracker> findByEntityIdAndEventType(@Param("entityId") String entityId,
                                                    @Param("eventType") String eventType);
 }

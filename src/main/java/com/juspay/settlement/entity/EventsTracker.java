@@ -8,87 +8,81 @@ import java.time.LocalDateTime;
 public class EventsTracker {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
-    @Column(name = "event_id", nullable = false)
+    @Column(name = "event_id", length = 128, nullable = false)
     private String eventId;
 
-    @Column(name = "event_type", nullable = false, length = 100)
+    @Column(name = "event_name", length = 255)
+    private String eventName;
+
+    @Column(name = "event_type", length = 255)
     private String eventType;
 
-    @Column(name = "topic_name", nullable = false, length = 200)
-    private String topicName;
-
-    @Column(name = "partition_num")
-    private Integer partitionNum;
-
-    @Column(name = "offset_num")
-    private Long offsetNum;
-
-    @Column(name = "txn_id")
-    private String txnId;
-
-    @Column(name = "recon_id")
-    private String reconId;
-
-    @Column(name = "payload", columnDefinition = "TEXT")
-    private String payload;
-
-    @Column(name = "status", length = 50)
-    private String status = "RECEIVED";
-
-    @Column(name = "error_message", length = 1000)
-    private String errorMessage;
-
-    @Column(name = "processing_time_ms")
-    private Long processingTimeMs;
-
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @Column(name = "metadata", columnDefinition = "json")
+    private String metadata;
+
+    @Column(name = "event_created_by", length = 255, nullable = false)
+    private String eventCreatedBy;
+
+    @Column(name = "entity_id", length = 50)
+    private String entityId;
+
+    @Column(name = "payment_entity", length = 50, nullable = false)
+    private String paymentEntity;
+
+    @Column(name = "event_status", length = 64)
+    private String eventStatus;
+
+    @Column(name = "sub_entity_id", length = 128)
+    private String subEntityId;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
+    // Getters and Setters
     public String getEventId() { return eventId; }
     public void setEventId(String eventId) { this.eventId = eventId; }
+
+    public String getEventName() { return eventName; }
+    public void setEventName(String eventName) { this.eventName = eventName; }
 
     public String getEventType() { return eventType; }
     public void setEventType(String eventType) { this.eventType = eventType; }
 
-    public String getTopicName() { return topicName; }
-    public void setTopicName(String topicName) { this.topicName = topicName; }
-
-    public Integer getPartitionNum() { return partitionNum; }
-    public void setPartitionNum(Integer partitionNum) { this.partitionNum = partitionNum; }
-
-    public Long getOffsetNum() { return offsetNum; }
-    public void setOffsetNum(Long offsetNum) { this.offsetNum = offsetNum; }
-
-    public String getTxnId() { return txnId; }
-    public void setTxnId(String txnId) { this.txnId = txnId; }
-
-    public String getReconId() { return reconId; }
-    public void setReconId(String reconId) { this.reconId = reconId; }
-
-    public String getPayload() { return payload; }
-    public void setPayload(String payload) { this.payload = payload; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public String getErrorMessage() { return errorMessage; }
-    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
-
-    public Long getProcessingTimeMs() { return processingTimeMs; }
-    public void setProcessingTimeMs(Long processingTimeMs) { this.processingTimeMs = processingTimeMs; }
-
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getMetadata() { return metadata; }
+    public void setMetadata(String metadata) { this.metadata = metadata; }
+
+    public String getEventCreatedBy() { return eventCreatedBy; }
+    public void setEventCreatedBy(String eventCreatedBy) { this.eventCreatedBy = eventCreatedBy; }
+
+    public String getEntityId() { return entityId; }
+    public void setEntityId(String entityId) { this.entityId = entityId; }
+
+    public String getPaymentEntity() { return paymentEntity; }
+    public void setPaymentEntity(String paymentEntity) { this.paymentEntity = paymentEntity; }
+
+    public String getEventStatus() { return eventStatus; }
+    public void setEventStatus(String eventStatus) { this.eventStatus = eventStatus; }
+
+    public String getSubEntityId() { return subEntityId; }
+    public void setSubEntityId(String subEntityId) { this.subEntityId = subEntityId; }
 }

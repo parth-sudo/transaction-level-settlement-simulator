@@ -30,12 +30,13 @@ public class EventsTrackerService {
 
             EventsTracker tracker = new EventsTracker();
             tracker.setEventId(event.getEventId());
+            tracker.setEventName(topicName);
             tracker.setEventType(event.getEventType());
-            tracker.setTopicName(topicName);
-            tracker.setTxnId(event.getTxnId());
-            tracker.setReconId(event.getReconId());
-            tracker.setPayload(payload);
-            tracker.setStatus("PROCESSED");
+            tracker.setEventStatus("PROCESSED");
+            tracker.setEventCreatedBy("settlement-service");
+            tracker.setEntityId(event.getMerchantId());
+            tracker.setPaymentEntity(event.getAcquirerId() != null ? event.getAcquirerId() : "UNKNOWN");
+            tracker.setMetadata(payload);
             eventsTrackerRepository.save(tracker);
             logger.debug("Tracked event {} of type {} in topic {}",
                     event.getEventId(), event.getEventType(), topicName);
@@ -54,14 +55,13 @@ public class EventsTrackerService {
 
             EventsTracker tracker = new EventsTracker();
             tracker.setEventId(event.getEventId());
+            tracker.setEventName(topicName);
             tracker.setEventType(event.getEventType());
-            tracker.setTopicName(topicName);
-            tracker.setPartitionNum(partition);
-            tracker.setOffsetNum(offset);
-            tracker.setTxnId(event.getTxnId());
-            tracker.setReconId(event.getReconId());
-            tracker.setPayload(payload);
-            tracker.setStatus("PROCESSED");
+            tracker.setEventStatus("PROCESSED");
+            tracker.setEventCreatedBy("settlement-service");
+            tracker.setEntityId(event.getMerchantId());
+            tracker.setPaymentEntity(event.getAcquirerId() != null ? event.getAcquirerId() : "UNKNOWN");
+            tracker.setMetadata(payload);
 
             eventsTrackerRepository.save(tracker);
         } catch (Exception e) {
@@ -79,12 +79,12 @@ public class EventsTrackerService {
         try {
             EventsTracker tracker = new EventsTracker();
             tracker.setEventId(eventId);
+            tracker.setEventName(topicName);
             tracker.setEventType(eventType);
-            tracker.setTopicName(topicName);
-            tracker.setTxnId(txnId);
-            tracker.setReconId(reconId);
-            tracker.setStatus("ERROR");
-            tracker.setErrorMessage(errorMessage);
+            tracker.setEventStatus("ERROR");
+            tracker.setEventCreatedBy("settlement-service");
+            tracker.setMetadata("{\"error\":\"" + errorMessage + "\",\"txnId\":\"" + txnId + "\",\"reconId\":\"" + reconId + "\"}");
+            tracker.setPaymentEntity("UNKNOWN");
 
             eventsTrackerRepository.save(tracker);
             logger.error("Tracked error for event {}: {}", eventId, errorMessage);

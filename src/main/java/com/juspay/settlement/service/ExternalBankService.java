@@ -2,28 +2,31 @@ package com.juspay.settlement.service;
 
 import com.juspay.settlement.config.SettlementProperties;
 import com.juspay.settlement.model.SettlementEvent;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class ExternalBankService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ExternalBankService.class);
 
     private final SettlementProperties settlementProperties;
     private final RestTemplate restTemplate = new RestTemplate();
 
+    public ExternalBankService(SettlementProperties settlementProperties) {
+        this.settlementProperties = settlementProperties;
+    }
+
     public SettlementEvent processSettlement(SettlementEvent event) {
-        log.info("Processing settlement for txnId: {} via external bank API", event.getTxnId());
+        logger.info("Processing settlement for txnId: {} via external bank API", event.getTxnId());
 
         try {
             String url = settlementProperties.getExternalApi().getBaseUrl() +
@@ -31,7 +34,6 @@ public class ExternalBankService {
 
             Map<String, Object> request = buildBankRequest(event);
 
-            // Call external Morpheus API (mock implementation)
             ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
@@ -45,20 +47,20 @@ public class ExternalBankService {
                         : "REF-" + UUID.randomUUID();
 
                 if ("SUCCESS".equalsIgnoreCase(status) || "SETTLED".equalsIgnoreCase(status)) {
-                    return SettlementEvent.builder()
-                            .eventId(UUID.randomUUID().toString())
-                            .eventType(SettlementEvent.EventType.SETTLEMENT_SUCCESS.name())
-                            .txnId(event.getTxnId())
-                            .reconId(event.getReconId())
-                            .merchantId(event.getMerchantId())
-                            .acquirerId(event.getAcquirerId())
-                            .amount(event.getAmount())
-                            .currency(event.getCurrency())
-                            .status("SETTLED")
-                            .settlementReference(event.getSettlementReference())
-                            .externalReference(reference)
-                            .timestamp(LocalDateTime.now())
-                            .build();
+                    SettlementEvent result = new SettlementEvent();
+                    result.setEventId(UUID.randomUUID().toString());
+                    result.setEventType(SettlementEvent.EventType.SETTLEMENT_SUCCESS.name());
+                    result.setTxnId(event.getTxnId());
+                    result.setReconId(event.getReconId());
+                    result.setMerchantId(event.getMerchantId());
+                    result.setAcquirerId(event.getAcquirerId());
+                    result.setAmount(event.getAmount());
+                    result.setCurrency(event.getCurrency());
+                    result.setStatus("SETTLED");
+                    result.setSettlementReference(event.getSettlementReference());
+                    result.setExternalReference(reference);
+                    result.setTimestamp(LocalDateTime.now());
+                    return result;
                 } else {
                     return buildFailureEvent(event, "Settlement rejected by bank: " + status);
                 }
@@ -66,40 +68,37 @@ public class ExternalBankService {
                 return buildFailureEvent(event, "Bank API returned status: " + response.getStatusCode());
             }
         } catch (Exception e) {
-            log.error("Error calling external bank API for txnId {}: {}", event.getTxnId(), e.getMessage());
+            logger.error("Error calling external bank API for txnId {}: {}", event.getTxnId(), e.getMessage());
             return buildFailureEvent(event, "API call failed: " + e.getMessage());
         }
     }
 
-    // Mock method for development/testing without actual external API
     public SettlementEvent processSettlementMock(SettlementEvent event) {
-        log.info("[MOCK] Processing settlement for txnId: {}", event.getTxnId());
+        logger.info("[MOCK] Processing settlement for txnId: {}", event.getTxnId());
 
-        // Simulate some processing time
         try {
             Thread.sleep(50);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
-        // Simulate 95% success rate
         boolean isSuccess = Math.random() > 0.05;
 
         if (isSuccess) {
-            return SettlementEvent.builder()
-                    .eventId(UUID.randomUUID().toString())
-                    .eventType(SettlementEvent.EventType.SETTLEMENT_SUCCESS.name())
-                    .txnId(event.getTxnId())
-                    .reconId(event.getReconId())
-                    .merchantId(event.getMerchantId())
-                    .acquirerId(event.getAcquirerId())
-                    .amount(event.getAmount())
-                    .currency(event.getCurrency())
-                    .status("SETTLED")
-                    .settlementReference(event.getSettlementReference())
-                    .externalReference("BANK-REF-" + UUID.randomUUID().toString().substring(0, 8))
-                    .timestamp(LocalDateTime.now())
-                    .build();
+            SettlementEvent result = new SettlementEvent();
+            result.setEventId(UUID.randomUUID().toString());
+            result.setEventType(SettlementEvent.EventType.SETTLEMENT_SUCCESS.name());
+            result.setTxnId(event.getTxnId());
+            result.setReconId(event.getReconId());
+            result.setMerchantId(event.getMerchantId());
+            result.setAcquirerId(event.getAcquirerId());
+            result.setAmount(event.getAmount());
+            result.setCurrency(event.getCurrency());
+            result.setStatus("SETTLED");
+            result.setSettlementReference(event.getSettlementReference());
+            result.setExternalReference("BANK-REF-" + UUID.randomUUID().toString().substring(0, 8));
+            result.setTimestamp(LocalDateTime.now());
+            return result;
         } else {
             return buildFailureEvent(event, "Mock bank rejection - insufficient funds");
         }
@@ -118,20 +117,20 @@ public class ExternalBankService {
     }
 
     private SettlementEvent buildFailureEvent(SettlementEvent event, String errorMessage) {
-        return SettlementEvent.builder()
-                .eventId(UUID.randomUUID().toString())
-                .eventType(SettlementEvent.EventType.SETTLEMENT_FAILED.name())
-                .txnId(event.getTxnId())
-                .reconId(event.getReconId())
-                .merchantId(event.getMerchantId())
-                .acquirerId(event.getAcquirerId())
-                .amount(event.getAmount())
-                .currency(event.getCurrency())
-                .status("FAILED")
-                .settlementReference(event.getSettlementReference())
-                .retryCount(event.getRetryCount() != null ? event.getRetryCount() + 1 : 1)
-                .errorMessage(errorMessage)
-                .timestamp(LocalDateTime.now())
-                .build();
+        SettlementEvent result = new SettlementEvent();
+        result.setEventId(UUID.randomUUID().toString());
+        result.setEventType(SettlementEvent.EventType.SETTLEMENT_FAILED.name());
+        result.setTxnId(event.getTxnId());
+        result.setReconId(event.getReconId());
+        result.setMerchantId(event.getMerchantId());
+        result.setAcquirerId(event.getAcquirerId());
+        result.setAmount(event.getAmount());
+        result.setCurrency(event.getCurrency());
+        result.setStatus("FAILED");
+        result.setSettlementReference(event.getSettlementReference());
+        result.setRetryCount(event.getRetryCount() != null ? event.getRetryCount() + 1 : 1);
+        result.setErrorMessage(errorMessage);
+        result.setTimestamp(LocalDateTime.now());
+        return result;
     }
 }

@@ -2,8 +2,8 @@ package com.juspay.settlement.service;
 
 import com.juspay.settlement.config.SettlementProperties;
 import com.juspay.settlement.model.SettlementEvent;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -11,12 +11,18 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class KafkaProducerService {
+
+    private static final Logger logger = LoggerFactory.getLogger(KafkaProducerService.class);
 
     private final KafkaTemplate<String, SettlementEvent> kafkaTemplate;
     private final SettlementProperties settlementProperties;
+
+    public KafkaProducerService(KafkaTemplate<String, SettlementEvent> kafkaTemplate,
+                                SettlementProperties settlementProperties) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.settlementProperties = settlementProperties;
+    }
 
     public void publishTxnInstruction(SettlementEvent event) {
         String topic = settlementProperties.getTopics().getTransactionInstructions();
@@ -40,10 +46,10 @@ public class KafkaProducerService {
 
         future.whenComplete((result, ex) -> {
             if (ex != null) {
-                log.error("Failed to publish event {} to topic {}: {}",
+                logger.error("Failed to publish event {} to topic {}: {}",
                         event.getEventId(), topic, ex.getMessage());
             } else {
-                log.debug("Published event {} to topic {} partition {} offset {}",
+                logger.debug("Published event {} to topic {} partition {} offset {}",
                         event.getEventId(),
                         topic,
                         result.getRecordMetadata().partition(),

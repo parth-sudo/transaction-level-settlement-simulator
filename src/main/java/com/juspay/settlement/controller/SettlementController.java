@@ -4,23 +4,27 @@ import com.juspay.settlement.model.SettlementRequest;
 import com.juspay.settlement.model.SettlementResponse;
 import com.juspay.settlement.service.SettlementService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/settlement")
-@RequiredArgsConstructor
-@Slf4j
 public class SettlementController {
 
+    private static final Logger logger = LoggerFactory.getLogger(SettlementController.class);
+
     private final SettlementService settlementService;
+
+    public SettlementController(SettlementService settlementService) {
+        this.settlementService = settlementService;
+    }
 
     @PostMapping("/initiate")
     public ResponseEntity<SettlementResponse> initiateSettlement(
             @Valid @RequestBody SettlementRequest request) {
-        log.info("Received settlement initiation request for reconId: {}", request.getReconId());
+        logger.info("Received settlement initiation request for reconId: {}", request.getReconId());
         SettlementResponse response = settlementService.initiateSettlement(request);
         return ResponseEntity.ok(response);
     }
@@ -28,7 +32,7 @@ public class SettlementController {
     @GetMapping("/status/{reconId}")
     public ResponseEntity<SettlementResponse> getSettlementStatus(
             @PathVariable String reconId) {
-        log.info("Received status check request for reconId: {}", reconId);
+        logger.info("Received status check request for reconId: {}", reconId);
         SettlementResponse response = settlementService.getSettlementStatus(reconId);
         return ResponseEntity.ok(response);
     }
@@ -37,11 +41,10 @@ public class SettlementController {
     public ResponseEntity<SettlementResponse> processBatch(
             @PathVariable String reconId,
             @RequestParam(defaultValue = "false") boolean async) {
-        log.info("Received batch process request for reconId: {}, async: {}", reconId, async);
-        SettlementRequest request = SettlementRequest.builder()
-                .reconId(reconId)
-                .processAsync(async)
-                .build();
+        logger.info("Received batch process request for reconId: {}, async: {}", reconId, async);
+        SettlementRequest request = new SettlementRequest();
+        request.setReconId(reconId);
+        request.setProcessAsync(async);
         SettlementResponse response = settlementService.initiateSettlement(request);
         return ResponseEntity.ok(response);
     }

@@ -67,6 +67,11 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 ---
+# Schema configurations
+schema:
+  recon-schema: ${RECON_SCHEMA:recon}
+  settlement-schema: ${SETTLEMENT_SCHEMA:settlement_20230727}
+
 # Settlement specific configurations
 settlement:
   topics:

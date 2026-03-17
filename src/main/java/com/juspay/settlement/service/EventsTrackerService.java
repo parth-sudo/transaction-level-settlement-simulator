@@ -4,39 +4,43 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juspay.settlement.entity.EventsTracker;
 import com.juspay.settlement.model.SettlementEvent;
 import com.juspay.settlement.repository.EventsTrackerRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class EventsTrackerService {
+
+    private static final Logger logger = LoggerFactory.getLogger(EventsTrackerService.class);
 
     private final EventsTrackerRepository eventsTrackerRepository;
     private final ObjectMapper objectMapper;
+
+    public EventsTrackerService(EventsTrackerRepository eventsTrackerRepository,
+                                ObjectMapper objectMapper) {
+        this.eventsTrackerRepository = eventsTrackerRepository;
+        this.objectMapper = objectMapper;
+    }
 
     @Transactional
     public void trackEvent(SettlementEvent event, String topicName) {
         try {
             String payload = objectMapper.writeValueAsString(event);
 
-            EventsTracker tracker = EventsTracker.builder()
-                    .eventId(event.getEventId())
-                    .eventType(event.getEventType())
-                    .topicName(topicName)
-                    .txnId(event.getTxnId())
-                    .reconId(event.getReconId())
-                    .payload(payload)
-                    .status("PROCESSED")
-                    .build();
-
+            EventsTracker tracker = new EventsTracker();
+            tracker.setEventId(event.getEventId());
+            tracker.setEventType(event.getEventType());
+            tracker.setTopicName(topicName);
+            tracker.setTxnId(event.getTxnId());
+            tracker.setReconId(event.getReconId());
+            tracker.setPayload(payload);
+            tracker.setStatus("PROCESSED");
             eventsTrackerRepository.save(tracker);
-            log.debug("Tracked event {} of type {} in topic {}",
+            logger.debug("Tracked event {} of type {} in topic {}",
                     event.getEventId(), event.getEventType(), topicName);
         } catch (Exception e) {
-            log.error("Failed to track event {}: {}", event.getEventId(), e.getMessage());
+            logger.error("Failed to track event {}: {}", event.getEventId(), e.getMessage());
         }
     }
 
@@ -48,21 +52,20 @@ public class EventsTrackerService {
         try {
             String payload = objectMapper.writeValueAsString(event);
 
-            EventsTracker tracker = EventsTracker.builder()
-                    .eventId(event.getEventId())
-                    .eventType(event.getEventType())
-                    .topicName(topicName)
-                    .partitionNum(partition)
-                    .offsetNum(offset)
-                    .txnId(event.getTxnId())
-                    .reconId(event.getReconId())
-                    .payload(payload)
-                    .status("PROCESSED")
-                    .build();
+            EventsTracker tracker = new EventsTracker();
+            tracker.setEventId(event.getEventId());
+            tracker.setEventType(event.getEventType());
+            tracker.setTopicName(topicName);
+            tracker.setPartitionNum(partition);
+            tracker.setOffsetNum(offset);
+            tracker.setTxnId(event.getTxnId());
+            tracker.setReconId(event.getReconId());
+            tracker.setPayload(payload);
+            tracker.setStatus("PROCESSED");
 
             eventsTrackerRepository.save(tracker);
         } catch (Exception e) {
-            log.error("Failed to track event {}: {}", event.getEventId(), e.getMessage());
+            logger.error("Failed to track event {}: {}", event.getEventId(), e.getMessage());
         }
     }
 
@@ -74,20 +77,19 @@ public class EventsTrackerService {
                                  String reconId,
                                  String errorMessage) {
         try {
-            EventsTracker tracker = EventsTracker.builder()
-                    .eventId(eventId)
-                    .eventType(eventType)
-                    .topicName(topicName)
-                    .txnId(txnId)
-                    .reconId(reconId)
-                    .status("ERROR")
-                    .errorMessage(errorMessage)
-                    .build();
+            EventsTracker tracker = new EventsTracker();
+            tracker.setEventId(eventId);
+            tracker.setEventType(eventType);
+            tracker.setTopicName(topicName);
+            tracker.setTxnId(txnId);
+            tracker.setReconId(reconId);
+            tracker.setStatus("ERROR");
+            tracker.setErrorMessage(errorMessage);
 
             eventsTrackerRepository.save(tracker);
-            log.error("Tracked error for event {}: {}", eventId, errorMessage);
+            logger.error("Tracked error for event {}: {}", eventId, errorMessage);
         } catch (Exception e) {
-            log.error("Failed to track error for event {}: {}", eventId, e.getMessage());
+            logger.error("Failed to track error for event {}: {}", eventId, e.getMessage());
         }
     }
 }

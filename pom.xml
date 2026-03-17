@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version>
+        <version>3.2.12</version>
         <relativePath/>
     </parent>
 
@@ -21,10 +21,9 @@
     <description>Kafka-based transaction level settlement simulator</description>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <kafka.version>3.6.0</kafka.version>
         <postgresql.version>42.7.1</postgresql.version>
-        <lombok.version>1.18.30</lombok.version>
     </properties>
 
     <dependencies>
@@ -62,13 +61,6 @@
             <version>${postgresql.version}</version>
         </dependency>
 
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- Jackson for JSON -->
         <dependency>
@@ -114,17 +106,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.13.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                    <meminitial>512m</meminitial>
+                    <maxmem>2048m</maxmem>
                 </configuration>
             </plugin>
         </plugins>

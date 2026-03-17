@@ -1,19 +1,10 @@
 package com.juspay.settlement.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "events_tracker")
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class EventsTracker {
 
     @Id
@@ -46,7 +37,6 @@ public class EventsTracker {
     private String payload;
 
     @Column(name = "status", length = 50)
-    @Builder.Default
     private String status = "RECEIVED";
 
     @Column(name = "error_message", length = 1000)
@@ -62,4 +52,43 @@ public class EventsTracker {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getEventId() { return eventId; }
+    public void setEventId(String eventId) { this.eventId = eventId; }
+
+    public String getEventType() { return eventType; }
+    public void setEventType(String eventType) { this.eventType = eventType; }
+
+    public String getTopicName() { return topicName; }
+    public void setTopicName(String topicName) { this.topicName = topicName; }
+
+    public Integer getPartitionNum() { return partitionNum; }
+    public void setPartitionNum(Integer partitionNum) { this.partitionNum = partitionNum; }
+
+    public Long getOffsetNum() { return offsetNum; }
+    public void setOffsetNum(Long offsetNum) { this.offsetNum = offsetNum; }
+
+    public String getTxnId() { return txnId; }
+    public void setTxnId(String txnId) { this.txnId = txnId; }
+
+    public String getReconId() { return reconId; }
+    public void setReconId(String reconId) { this.reconId = reconId; }
+
+    public String getPayload() { return payload; }
+    public void setPayload(String payload) { this.payload = payload; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getErrorMessage() { return errorMessage; }
+    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
+    public Long getProcessingTimeMs() { return processingTimeMs; }
+    public void setProcessingTimeMs(Long processingTimeMs) { this.processingTimeMs = processingTimeMs; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

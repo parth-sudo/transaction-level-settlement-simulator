@@ -1,20 +1,11 @@
 package com.juspay.settlement.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "settlement_report", schema = "${settlement.schema:recon}")
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "settlement_report")
 public class SettlementReport {
 
     @Id
@@ -59,4 +50,34 @@ public class SettlementReport {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getTxnId() { return txnId; }
+    public void setTxnId(String txnId) { this.txnId = txnId; }
+
+    public String getReconId() { return reconId; }
+    public void setReconId(String reconId) { this.reconId = reconId; }
+
+    public String getMerchantId() { return merchantId; }
+    public void setMerchantId(String merchantId) { this.merchantId = merchantId; }
+
+    public String getAcquirerId() { return acquirerId; }
+    public void setAcquirerId(String acquirerId) { this.acquirerId = acquirerId; }
+
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
+
+    public String getCurrency() { return currency; }
+    public void setCurrency(String currency) { this.currency = currency; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

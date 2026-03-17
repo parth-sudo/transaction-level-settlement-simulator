@@ -2,18 +2,10 @@ package com.juspay.settlement.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SettlementEvent {
 
@@ -36,6 +28,51 @@ public class SettlementEvent {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+
+    public String getEventId() { return eventId; }
+    public void setEventId(String eventId) { this.eventId = eventId; }
+
+    public String getEventType() { return eventType; }
+    public void setEventType(String eventType) { this.eventType = eventType; }
+
+    public String getTxnId() { return txnId; }
+    public void setTxnId(String txnId) { this.txnId = txnId; }
+
+    public String getReconId() { return reconId; }
+    public void setReconId(String reconId) { this.reconId = reconId; }
+
+    public String getMerchantId() { return merchantId; }
+    public void setMerchantId(String merchantId) { this.merchantId = merchantId; }
+
+    public String getAcquirerId() { return acquirerId; }
+    public void setAcquirerId(String acquirerId) { this.acquirerId = acquirerId; }
+
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
+
+    public String getCurrency() { return currency; }
+    public void setCurrency(String currency) { this.currency = currency; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getSettlementReference() { return settlementReference; }
+    public void setSettlementReference(String settlementReference) { this.settlementReference = settlementReference; }
+
+    public String getExternalReference() { return externalReference; }
+    public void setExternalReference(String externalReference) { this.externalReference = externalReference; }
+
+    public Integer getRetryCount() { return retryCount; }
+    public void setRetryCount(Integer retryCount) { this.retryCount = retryCount; }
+
+    public String getErrorMessage() { return errorMessage; }
+    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public enum EventType {
         TXN_INSTRUCTION_CREATED,

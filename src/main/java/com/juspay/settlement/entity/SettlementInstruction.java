@@ -1,23 +1,21 @@
 package com.juspay.settlement.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "settlement_instructions")
+@Table(name = "transaction_settlement_instructions", schema = "settlement_20230727")
 public class SettlementInstruction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "txn_identifier", length = 50)
+    private String txnIdentifier;
 
     @Column(name = "settlement_id", length = 50)
     private String settlementId;
-
-    @Column(name = "recon_id", length = 50)
-    private String reconId;
 
     @Column(name = "utr_no", length = 50)
     private String utrNo;
@@ -25,14 +23,8 @@ public class SettlementInstruction {
     @Column(name = "entity_id", length = 40)
     private String entityId;
 
-    @Column(name = "sub_entity_id", length = 40)
-    private String subEntityId;
-
     @Column(name = "payment_entity", length = 40)
     private String paymentEntity;
-
-    @Column(name = "payment_sub_entity", length = 40)
-    private String paymentSubEntity;
 
     @Column(name = "pmt", length = 40)
     private String pmt;
@@ -85,7 +77,8 @@ public class SettlementInstruction {
     @Column(name = "account_id", length = 50)
     private String accountId;
 
-    @Column(name = "settlement_metadata", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "settlement_metadata")
     private String settlementMetadata;
 
     @Column(name = "udf1", length = 50)
@@ -142,14 +135,14 @@ public class SettlementInstruction {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return txnIdentifier; }
+    public void setId(String id) { this.txnIdentifier = id; }
+
+    public String getTxnIdentifier() { return txnIdentifier; }
+    public void setTxnIdentifier(String txnIdentifier) { this.txnIdentifier = txnIdentifier; }
 
     public String getSettlementId() { return settlementId; }
     public void setSettlementId(String settlementId) { this.settlementId = settlementId; }
-
-    public String getReconId() { return reconId; }
-    public void setReconId(String reconId) { this.reconId = reconId; }
 
     public String getUtrNo() { return utrNo; }
     public void setUtrNo(String utrNo) { this.utrNo = utrNo; }
@@ -157,14 +150,8 @@ public class SettlementInstruction {
     public String getEntityId() { return entityId; }
     public void setEntityId(String entityId) { this.entityId = entityId; }
 
-    public String getSubEntityId() { return subEntityId; }
-    public void setSubEntityId(String subEntityId) { this.subEntityId = subEntityId; }
-
     public String getPaymentEntity() { return paymentEntity; }
     public void setPaymentEntity(String paymentEntity) { this.paymentEntity = paymentEntity; }
-
-    public String getPaymentSubEntity() { return paymentSubEntity; }
-    public void setPaymentSubEntity(String paymentSubEntity) { this.paymentSubEntity = paymentSubEntity; }
 
     public String getPmt() { return pmt; }
     public void setPmt(String pmt) { this.pmt = pmt; }

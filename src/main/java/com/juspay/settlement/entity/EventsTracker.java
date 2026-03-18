@@ -1,10 +1,12 @@
 package com.juspay.settlement.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "events_tracker")
+@Table(name = "events_tracker", schema = "recon")
 public class EventsTracker {
 
     @Id
@@ -23,7 +25,8 @@ public class EventsTracker {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "metadata", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "metadata")
     private String metadata;
 
     @Column(name = "event_created_by", length = 255, nullable = false)

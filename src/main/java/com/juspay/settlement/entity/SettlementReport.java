@@ -1,15 +1,17 @@
 package com.juspay.settlement.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "settlement_report")
+@Table(name = "settlement_report", schema = "settlement_20230727")
 public class SettlementReport {
 
     @Id
-    @Column(name = "id", columnDefinition = "uuid")
+    @Column(name = "id")
     private String id;
 
     @Column(name = "sys_a_txn_id", length = 128)
@@ -156,7 +158,8 @@ public class SettlementReport {
     @Column(name = "referrer_payout_type", length = 64)
     private String referrerPayoutType = "FIXED";
 
-    @Column(name = "txn_splits", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "txn_splits")
     private String txnSplits;
 
     @Column(name = "surcharge", nullable = false, precision = 20, scale = 9)
@@ -174,7 +177,8 @@ public class SettlementReport {
     @Column(name = "emi_tenure")
     private Integer emiTenure;
 
-    @Column(name = "txn_basket", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "txn_basket")
     private String txnBasket;
 
     @Column(name = "is_domestic", length = 64)
@@ -219,7 +223,8 @@ public class SettlementReport {
     @Column(name = "acquirer_processed_tax", nullable = false, precision = 24, scale = 9)
     private BigDecimal acquirerProcessedTax = BigDecimal.ZERO;
 
-    @Column(name = "offer_details", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "offer_details")
     private String offerDetails;
 
     @Column(name = "multi_acquirer_txn_status", length = 128)

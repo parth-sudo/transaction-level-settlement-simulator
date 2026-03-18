@@ -9,6 +9,7 @@ import java.util.List;
 public class SettlementResponse {
 
     private String reconId;
+    private String entityId;
     private String status;
     private String message;
     private Integer totalTransactions;
@@ -23,6 +24,9 @@ public class SettlementResponse {
 
     public String getReconId() { return reconId; }
     public void setReconId(String reconId) { this.reconId = reconId; }
+
+    public String getEntityId() { return entityId; }
+    public void setEntityId(String entityId) { this.entityId = entityId; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

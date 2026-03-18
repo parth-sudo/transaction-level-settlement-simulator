@@ -39,6 +39,7 @@ public class SettlementProperties {
         private String transactionInstructions = "txn-settlement-instructions";
         private String settlementFlow = "settlement-flow-events";
         private String settlementStatus = "settlement-status-updates";
+        private String bankProcessing = "bank-processing-events";
 
         public String getTransactionInstructions() {
             return transactionInstructions;
@@ -62,6 +63,14 @@ public class SettlementProperties {
 
         public void setSettlementStatus(String settlementStatus) {
             this.settlementStatus = settlementStatus;
+        }
+
+        public String getBankProcessing() {
+            return bankProcessing;
+        }
+
+        public void setBankProcessing(String bankProcessing) {
+            this.bankProcessing = bankProcessing;
         }
     }
 

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface SettlementInstructionRepository extends JpaRepository<SettlementInstruction, Long> {
+public interface SettlementInstructionRepository extends JpaRepository<SettlementInstruction, String> {
 
     Optional<SettlementInstruction> findBySettlementId(String settlementId);
 
@@ -45,12 +45,15 @@ public interface SettlementInstructionRepository extends JpaRepository<Settlemen
     @Query("SELECT COUNT(si) FROM SettlementInstruction si WHERE si.entityId = :entityId AND si.settlementStatus = :status")
     Long countByEntityIdAndStatus(@Param("entityId") String entityId, @Param("status") String status);
 
-    @Query("SELECT COUNT(si) FROM SettlementInstruction si WHERE si.reconId = :reconId")
-    Long countByReconId(@Param("reconId") String reconId);
+    List<SettlementInstruction> findByParentSettlementId(String parentSettlementId);
 
-    @Query("SELECT COUNT(si) FROM SettlementInstruction si WHERE si.reconId = :reconId AND si.settlementStatus = :status")
-    Long countByReconIdAndStatus(@Param("reconId") String reconId, @Param("status") String status);
+    @Modifying
+    @Query("UPDATE SettlementInstruction si SET si.settlementStatus = :status, si.remarks = :remarks, si.updatedAt = CURRENT_TIMESTAMP WHERE si.txnIdentifier = :txnIdentifier")
+    int updateStatusByTxnIdentifier(@Param("txnIdentifier") String txnIdentifier,
+                                     @Param("status") String status,
+                                     @Param("remarks") String remarks);
 
-    @Query("SELECT si FROM SettlementInstruction si WHERE si.reconId = :reconId AND si.settlementStatus = 'PENDING'")
-    List<SettlementInstruction> findPendingByReconId(@Param("reconId") String reconId);
+    @Query("SELECT si.entityId, SUM(si.settlementAmount), SUM(si.feeAmount), SUM(si.taxAmount), si.settlementType " +
+           "FROM SettlementInstruction si WHERE si.entityId = :entityId GROUP BY si.entityId, si.settlementType")
+    List<Object[]> getSettlementReportByEntityId(@Param("entityId") String entityId);
 }

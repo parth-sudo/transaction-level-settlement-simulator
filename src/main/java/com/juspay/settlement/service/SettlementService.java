@@ -3,6 +3,7 @@ package com.juspay.settlement.service;
 import com.juspay.settlement.entity.SettlementInstruction;
 import com.juspay.settlement.entity.SettlementReport;
 import com.juspay.settlement.model.SettlementEvent;
+import com.juspay.settlement.model.SettlementReportDto;
 import com.juspay.settlement.model.SettlementRequest;
 import com.juspay.settlement.model.SettlementResponse;
 import com.juspay.settlement.repository.SettlementInstructionRepository;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -170,12 +172,11 @@ public class SettlementService {
 
     private SettlementInstruction createInstruction(SettlementReport report) {
         SettlementInstruction instruction = new SettlementInstruction();
-        instruction.setSettlementId(report.getSettlementId() != null ? report.getSettlementId() : UUID.randomUUID().toString());
+        instruction.setTxnIdentifier(report.getSysATxnId() != null ? report.getSysATxnId() : UUID.randomUUID().toString());
+        instruction.setSettlementId(UUID.randomUUID().toString());
         instruction.setUtrNo(report.getUtrNo());
         instruction.setEntityId(report.getEntityId());
-        instruction.setSubEntityId(report.getSubEntityId());
         instruction.setPaymentEntity(report.getPaymentEntity());
-        instruction.setPaymentSubEntity(report.getPaymentSubEntity());
         instruction.setPmt(report.getPmt());
         instruction.setSettlementStatus("PENDING");
         instruction.setSettlementValidationStatus("PENDING");
@@ -216,20 +217,18 @@ public class SettlementService {
         return event;
     }
 
-    public SettlementResponse getSettlementStatus(String reconId) {
+    public SettlementResponse getSettlementStatus(String entityId) {
         // Get summary from settlement_instructions table
-        List<Object[]> summary = settlementReportRepository.getSummaryByReconId(reconId);
-
-        Long total = settlementInstructionRepository.countByReconId(reconId);
-        Long settled = settlementInstructionRepository.countByReconIdAndStatus(reconId, "SETTLED");
-        Long pending = settlementInstructionRepository.countByReconIdAndStatus(reconId, "PENDING");
-        Long failed = settlementInstructionRepository.countByReconIdAndStatus(reconId, "FAILED");
+        Long total = settlementInstructionRepository.countByEntityId(entityId);
+        Long settled = settlementInstructionRepository.countByEntityIdAndStatus(entityId, "SETTLED");
+        Long pending = settlementInstructionRepository.countByEntityIdAndStatus(entityId, "PENDING");
+        Long failed = settlementInstructionRepository.countByEntityIdAndStatus(entityId, "FAILED");
 
         String status = (pending == 0 && failed == 0) ? "COMPLETED" :
                        (failed > 0) ? "PARTIAL_FAILURE" : "IN_PROGRESS";
 
         SettlementResponse response = new SettlementResponse();
-        response.setReconId(reconId);
+        response.setEntityId(entityId);
         response.setStatus(status);
         response.setTotalTransactions(total.intValue());
         response.setProcessedCount(settled.intValue());
@@ -239,7 +238,75 @@ public class SettlementService {
         return response;
     }
 
-    public List<SettlementInstruction> getPendingInstructions(String reconId) {
-        return settlementInstructionRepository.findPendingByReconId(reconId);
+    public List<SettlementInstruction> getPendingInstructions(String entityId) {
+        return settlementInstructionRepository.findPendingByEntityId(entityId);
+    }
+
+    @Transactional
+    public SettlementResponse queueSettlementsByParentId(String parentSettlementId) {
+        logger.info("Queueing settlements for parentSettlementId: {}", parentSettlementId);
+
+        List<SettlementInstruction> instructions = settlementInstructionRepository.findByParentSettlementId(parentSettlementId);
+
+        if (instructions.isEmpty()) {
+            logger.warn("No settlement instructions found for parentSettlementId: {}", parentSettlementId);
+            SettlementResponse response = new SettlementResponse();
+            response.setStatus("NO_DATA");
+            response.setMessage("No settlement instructions found for the given parentSettlementId");
+            response.setTimestamp(LocalDateTime.now());
+            return response;
+        }
+
+        int queuedCount = 0;
+        for (SettlementInstruction instruction : instructions) {
+            try {
+                SettlementEvent event = new SettlementEvent();
+                event.setEventId(UUID.randomUUID().toString());
+                event.setEventType("SETTLEMENT_FOR_BANK_PROCESSING");
+                event.setTxnId(instruction.getTxnIdentifier());
+                event.setMerchantId(instruction.getEntityId());
+                event.setAcquirerId(instruction.getPaymentEntity());
+                event.setAmount(instruction.getSettlementAmount());
+                event.setCurrency("365");
+                event.setStatus(instruction.getSettlementStatus());
+                event.setSettlementReference(instruction.getSettlementId());
+                event.setTimestamp(LocalDateTime.now());
+                event.setCreatedAt(LocalDateTime.now());
+
+                kafkaProducerService.publishBankProcessing(event);
+                queuedCount++;
+            } catch (Exception e) {
+                logger.error("Error queueing settlement for txn: {}", instruction.getTxnIdentifier(), e);
+            }
+        }
+
+        logger.info("Queued {} settlements for parentSettlementId: {}", queuedCount, parentSettlementId);
+
+        SettlementResponse response = new SettlementResponse();
+        response.setStatus("QUEUED");
+        response.setMessage("Settlements queued for bank processing");
+        response.setTotalTransactions(instructions.size());
+        response.setProcessedCount(queuedCount);
+        response.setTimestamp(LocalDateTime.now());
+        return response;
+    }
+
+    public List<SettlementReportDto> getConsolidatedReport(String entityId) {
+        logger.info("Generating consolidated report for entityId: {}", entityId);
+
+        List<Object[]> results = settlementInstructionRepository.getSettlementReportByEntityId(entityId);
+        List<SettlementReportDto> reports = new ArrayList<>();
+
+        for (Object[] row : results) {
+            SettlementReportDto dto = new SettlementReportDto();
+            dto.setMerchantId((String) row[0]);
+            dto.setTotalSettlementAmount((BigDecimal) row[1]);
+            dto.setTotalFeesAmount((BigDecimal) row[2]);
+            dto.setTotalTaxAmount((BigDecimal) row[3]);
+            dto.setTxnType((String) row[4]);
+            reports.add(dto);
+        }
+
+        return reports;
     }
 }

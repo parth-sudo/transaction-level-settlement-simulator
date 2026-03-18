@@ -40,6 +40,11 @@ public class KafkaProducerService {
         publishEvent(topic, event.getTxnId(), event);
     }
 
+    public void publishBankProcessing(SettlementEvent event) {
+        String topic = settlementProperties.getTopics().getBankProcessing();
+        publishEvent(topic, event.getTxnId(), event);
+    }
+
     private void publishEvent(String topic, String key, SettlementEvent event) {
         CompletableFuture<SendResult<String, SettlementEvent>> future =
                 kafkaTemplate.send(topic, key, event);

@@ -78,6 +78,7 @@ settlement:
     transaction-instructions: txn-settlement-instructions
     settlement-flow: settlement-flow-events
     settlement-status: settlement-status-updates
+    bank-processing: bank-processing-events
   batch:
     size: ${SETTLEMENT_BATCH_SIZE:100}
     timeout-ms: ${SETTLEMENT_BATCH_TIMEOUT_MS:5000}
@@ -85,3 +86,11 @@ settlement:
     base-url: ${MORPHEUS_API_URL:http://localhost:8080}
     endpoint: ${MORPHEUS_API_ENDPOINT:/api/v1/settle}
     timeout-ms: ${API_TIMEOUT_MS:30000}
+
+#logging
+logging:
+  level:
+    root: INFO
+    com.juspay.settlement: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
